@@ -543,9 +543,9 @@ app.get("/session/:sessionId/attendance", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/student/attendance", verifyToken, async (req, res) => {
+app.get("/student/attendance/:moduleId", verifyToken, async (req, res) => {
   const studentId = req.user.id;
-
+  const { moduleId } = req.params;
   try {
     const result = await pool.query(
       `SELECT 
@@ -556,8 +556,8 @@ app.get("/student/attendance", verifyToken, async (req, res) => {
              FROM attendance
              JOIN sessions ON attendance.session_id = sessions.id
              JOIN modules ON sessions.module_id = modules.id
-             WHERE attendance.student_id = $1`,
-      [studentId],
+             WHERE attendance.student_id = $1 AND modules.id = $2`,
+      [studentId, moduleId],
     );
 
     res.json({
