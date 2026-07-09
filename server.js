@@ -572,6 +572,36 @@ app.get("/student/attendance/:moduleId", verifyToken, async (req, res) => {
   }
 });
 
+app.get("/student/modules", verifyToken, async (req, res) => {
+  const studentId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+        modules.id,
+        modules.name AS module_name,
+        COUNT(CASE WHEN attendance.status = 'present' THEN 1 END) AS total_present,
+        COUNT(CASE WHEN attendance.status = 'absent' THEN 1 END) AS total_absent,
+        COUNT(attendance.id) AS total_sessions
+       FROM attendance
+       JOIN sessions ON attendance.session_id = sessions.id
+       JOIN modules ON sessions.module_id = modules.id
+       WHERE attendance.student_id = $1
+       GROUP BY modules.id, modules.name`,
+      [studentId],
+    );
+
+    res.json({
+      message: "Modules retrieved successfully",
+      modules: result.rows,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving modules", error: err.message });
+  }
+});
+
 app.get(
   "/module/:moduleId/sessions",
   verifyToken,
