@@ -21,6 +21,7 @@ const port = 3000;
 app.use(cors({ origin: "http://localhost:5173" }));
 
 const { v4: uuidv4 } = require("uuid");
+const { error } = require("console");
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -676,6 +677,24 @@ app.get("/programs/:departmentId", async (req, res) => {
   }
 });
 
+app.get("/lecturer/modules", verifyToken, verifyLecturer, async (req, res) => {
+  const lecturerId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM modules WHERE lecturer_id= $1`,
+      [lecturerId],
+    );
+    res.json({
+      message: "modules retrieved successsfully",
+      modules: result.rows,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "error while getting modules ", error: err.message });
+  }
+});
 app.listen(port, () => {
   console.log(`server running at port ${port}`);
 });
