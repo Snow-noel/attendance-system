@@ -21,8 +21,6 @@ const port = 3000;
 app.use(cors({ origin: "http://localhost:5173" }));
 
 const { v4: uuidv4 } = require("uuid");
-const { error } = require("console");
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -679,5 +677,5 @@ app.get("/programs/:departmentId", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`server running at port ${3000}`);
+  console.log(`server running at port ${port}`);
 });
